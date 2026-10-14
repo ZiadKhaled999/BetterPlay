@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+/* M0 — plugin requirement: window is transparent so the mpv surface shows
+   through; the surface itself renders black when idle. */
+html,
+body,
+#root {
+  background: transparent;
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family:
+    system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  overflow: hidden;
+}
+
+/* Design tokens (02-design-system.md). Full audit in M2; vars land now. */
+:root {
+  --color-bg-window: #000000;
+  --color-bg-bar: #000000;
+  --color-bg-panel: #2f2f2f;
+  --color-bg-panel-hover: #3a3a3a;
+  --color-accent: #1a9bff;
+  --color-accent-soft: rgba(26, 155, 255, 0.18);
+  --color-track-empty: #4d4d4d;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #9a9a9a;
+  --color-border-subtle: #1a1a1a;
+  --color-danger: #e81123;
+  --titlebar-height: 32px;
+  --bottombar-height: 48px;
+  --panel-width: 460px;
+}

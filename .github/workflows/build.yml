@@ -1,0 +1,70 @@
+# M0 — CI matrix build (acceptance: green on win/mac/linux).
+#
+# GUI cannot run in containers: this workflow IS the M0 verification path.
+# Linux window embedding is experimental upstream
+# (tauri-plugin-libmpv README, "Platform Support"); a green build on Linux
+# proves compile + bundle, not rendering. Rendering acceptance happens on
+# real machines per 03-build-order.md.
+
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            args: ""
+          - os: macos-latest
+            args: ""
+          - os: ubuntu-22.04
+            args: ""
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          # Tauri v2 prerequisites (v2.tauri.app/start/prerequisites)
+          # plus libmpv-dev for the libmpv runtime (plugin README).
+          sudo apt install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libmpv-dev
+
+      - name: Install macOS system dependencies
+        if: runner.os == 'macOS'
+        run: brew install mpv
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+      - run: npm run setup:libmpv
+      - run: npm run build
+      - run: npx tauri build ${{ matrix.args }}
